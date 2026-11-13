@@ -1,0 +1,14 @@
+{
+  "name": "alphaworks",
+  "description": "회사 플랫폼(알파웍스 — 가제)에 앱을 만들고 옮기고 배포할 때 — corp-platform CLI를 부르는 얇은 층(CLI 설치 · 하루 한 번 업데이트 · MCP 연결 · 지침).",
+  "author": {
+    "name": "AlphaBrothers-Corp"
+  },
+  "keywords": [
+    "alphaworks",
+    "corp-platform",
+    "deploy",
+    "korean"
+  ],
+  "homepage": "https://github.com/AlphaBrothers-Corp/alphaworks-plugins"
+}

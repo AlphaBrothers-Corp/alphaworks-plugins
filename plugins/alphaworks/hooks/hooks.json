@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "bash",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh\" claude",
+            "async": true,
+            "timeout": 300
+          }
+        ]
+      }
+    ]
+  }
+}

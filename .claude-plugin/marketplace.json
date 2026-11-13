@@ -1,0 +1,22 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "alphaworks",
+  "description": "알파웍스(회사 플랫폼, 가제) 플러그인 — Claude Code용. corp-platform CLI를 깔고 하루 한 번 새 판으로 올리며, 회사 플랫폼 MCP를 붙여요.",
+  "owner": {
+    "name": "AlphaBrothers-Corp"
+  },
+  "plugins": [
+    {
+      "name": "alphaworks",
+      "description": "회사 플랫폼(알파웍스 — 가제)에 앱을 만들고 옮기고 배포할 때 — corp-platform CLI를 부르는 얇은 층(CLI 설치 · 하루 한 번 업데이트 · MCP 연결 · 지침).",
+      "source": "./plugins/alphaworks",
+      "category": "development",
+      "tags": [
+        "alphaworks",
+        "corp-platform",
+        "deploy",
+        "korean"
+      ]
+    }
+  ]
+}

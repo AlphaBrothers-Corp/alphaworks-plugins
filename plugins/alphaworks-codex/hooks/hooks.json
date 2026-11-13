@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh\" codex",
+            "async": true,
+            "timeout": 300,
+            "commandWindows": "exit 0"
+          }
+        ]
+      }
+    ]
+  }
+}
