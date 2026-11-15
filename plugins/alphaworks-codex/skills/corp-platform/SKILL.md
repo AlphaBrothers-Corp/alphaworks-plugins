@@ -12,8 +12,8 @@ description: 회사 플랫폼(corp-platform)에 앱을 새로 만들거나, 있�
 순서대로 하고, 끝난 단계는 건너뛴다.
 
 1. **CLI** — `corp-platform --version`. 안 되면 `~/.corp-platform/bin/corp-platform --version`. 둘 다 안 되면 직접 설치한다(사람에게 부탁하지 않음 — 로그인 · Node · 토큰 없음):
-   - 맥 · 리눅스 · Git Bash: `curl -fsSL https://storage.googleapis.com/alphabrothers-corp-platform-cli/install.sh | bash`
-   - 윈도우 PowerShell: `irm https://storage.googleapis.com/alphabrothers-corp-platform-cli/install.ps1 | iex`
+   - 맥 · 리눅스 · Git Bash: `curl -fsSL https://github.com/AlphaBrothers-Corp/alphaworks-cli/releases/latest/download/install.sh | bash`
+   - 윈도우 PowerShell: `irm https://github.com/AlphaBrothers-Corp/alphaworks-cli/releases/latest/download/install.ps1 | iex`
    설치가 `CORP_PLATFORM_INSTALL_ERROR code=…`로 끝나면 그 줄을 사람에게 전한다. `network_blocked` · `tls_intercepted`는 회사망 · 보안 프로그램이 막은 것이라 우회하지 않고 멈춘다. 설치 뒤 이 세션에서 `corp-platform`을 못 찾으면 전체 경로로 부른다.
 2. **PC 점검** — `corp-platform setup --json`. `say`를 전하고, "사람이 할 것"(GitHub 로그인 — 브라우저 승인)은 그 명령(`gh auth login -h github.com`)을 사람에게 알려 직접 하게 한다.
 3. **MCP 로그인** — 이 플러그인이 회사 플랫폼 MCP(`https://mcp.corp.ai-team.kr/mcp`, 이름 `corp-platform`)를 붙인다. 사람에게 터미널에서 `codex mcp login corp-platform`을 치고 브라우저에서 회사 계정으로 로그인(허용 화면의 도구 이름이 "Codex"인지)하게 한다. Codex는 만료된 연결을 저절로 잇지 않아 "다시 로그인"이 나오면 같은 명령을 다시 친다. 비밀번호 · 인증 코드는 묻지 않는다. 예전에 `codex mcp add`로 손으로 붙인 `corp-platform`이 있으면 둘 중 하나만 쓰면 된다고 알린다.
