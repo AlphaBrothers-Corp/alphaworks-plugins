@@ -25,7 +25,39 @@ codex plugin marketplace add https://github.com/AlphaBrothers-Corp/alphaworks-pl
 codex plugin add alphaworks-codex@alphaworks
 ```
 
-설치한 뒤 새 세션에서 **"시작해줘"** 라고 하면 CLI 설치 · PC 점검 · MCP 로그인 · 허용 목록까지 차례로 해요.
+설치한 뒤 새 세션에서 **"시작해줘"** 라고 하면 차례로 해요. 내 손이 필요한 곳(브라우저 승인 · 동의)에서만 멈춰요.
+
+| # | 에이전트가 하는 것 | 내가 할 일 |
+| --- | --- | --- |
+| 1 | GitHub 도구(`gh`)가 없으면 설치, 로그인 명령 띄우기 | 설치 동의, 브라우저에서 **승인**(회사 조직 계정) |
+| 2 | `corp-platform` CLI 설치, PC 점검 | 없음 |
+| 3 | 회사 플랫폼 MCP 연결 확인 | 브라우저에서 회사 로그인 · 2단계 인증 · **허용** |
+| 4 | 명령 허용 목록(사용자 설정)에 플랫폼 명령 · 읽기 도구 넣기 | 넣을 줄을 보고 동의 |
+| 5 | 사용법 문서 알려 주기 | 다음은 회사 포털의 `/docs`(포털 로그인 뒤) — 「말로 첫 앱 만들기」부터 |
+
+### 플러그인 없이 손으로
+
+플러그인을 못 쓰는 환경이면 같은 일을 두 줄로 해요. CLI 설치(맥 · 리눅스 · Git Bash):
+
+```
+curl -fsSL https://github.com/AlphaBrothers-Corp/alphaworks-cli/releases/latest/download/install.sh | bash
+```
+
+윈도우 PowerShell:
+
+```
+irm https://github.com/AlphaBrothers-Corp/alphaworks-cli/releases/latest/download/install.ps1 | iex
+```
+
+회사 플랫폼 MCP 연결(Claude Code — 그다음 `/mcp`에서 `corp-platform` 로그인):
+
+```
+claude mcp add --transport http --scope user corp-platform https://mcp.corp.ai-team.kr/mcp
+```
+
+Codex는 `codex mcp add corp-platform --url https://mcp.corp.ai-team.kr/mcp` → `codex mcp login corp-platform`.
+
+다음은 회사 포털의 사용법 문서 `https://portal.corp.ai-team.kr/docs`(직원 로그인 뒤)예요. 「준비하기」 · 「말로 첫 앱 만들기」 순서로 보면 돼요.
 
 - 공개 마켓플레이스라 Claude Code의 자동 업데이트는 기본 꺼짐이에요 — `/plugin`에서 이 마켓플레이스의 자동 업데이트를 켜 주세요. 플러그인은 버전을 고정하지 않아서 저장소가 바뀌면 새 판이 가요
 - Codex는 처음 세션에서 플러그인 훅을 믿을지 물어요. 믿지 않으면 하루 한 번 업데이트만 꺼지고, 스킬은 그대로 돼요. 플러그인 업데이트는 Codex를 다시 열어야 반영돼요
