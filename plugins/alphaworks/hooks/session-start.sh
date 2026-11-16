@@ -103,7 +103,7 @@ if out=$(CORP_PLATFORM_NO_UPDATE_CHECK=1 "$BIN" self-update --json 2>&1); then
     *'"changed": true'*)
       after=$("$BIN" --version 2>/dev/null)
       log "updated $before -> $after"
-      say "corp-platform CLI를 $before에서 $after로 올렸어요."
+      say "corp-platform CLI를 ${before}에서 ${after}로 올렸어요."
       ;;
     *) log "same $before" ;;
   esac
