@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# 세션 시작 훅 — corp-platform CLI가 없으면 깔고, 하루 한 번 새 판으로 올림 (planning/55-CLI-단일바이너리 "업데이트" · 52-사용성개선 "2. CLI는 공개 CDN, 플러그인은 CLI 래퍼")
+# 세션 시작 훅 — 알파웍스 CLI(alphaworks)가 없으면 깔고, 하루 한 번 새 판으로 올림 (planning/55-CLI-단일바이너리 "업데이트" · 52-사용성개선 "2. CLI는 공개 CDN, 플러그인은 CLI 래퍼")
 # hooks.json이 async로 등록 — 세션을 막지 않고 뒤에서 돎. 바뀐 것이 있을 때만 마지막 줄 JSON(additionalContext)으로 에이전트에게 한 줄 알림
-# CLI가 혼자 바꾸지 않음 — 이 훅이 `corp-platform self-update`를 부르는 것뿐. 끄기: CORP_PLATFORM_NO_AUTO_UPDATE=1 또는 ~/.corp-platform/no-auto-update 파일
+# CLI가 혼자 바꾸지 않음 — 이 훅이 `alphaworks self-update`를 부르는 것뿐. 끄기: CORP_PLATFORM_NO_AUTO_UPDATE=1 또는 ~/.corp-platform/no-auto-update 파일
 # 사본: Claude Code용(plugins/alphaworks)과 Codex용(plugins/alphaworks-codex)이 글자 그대로 같음 — scripts/test/plugins.test.ts가 견줌
 # NOTE: 비밀값 · 토큰 없음. 받는 곳은 공개 저장소의 GitHub Releases 하나(설치 스크립트 · self-update가 sha256 · 서명 확인). 윈도우 Codex는 hooks.json이 건너뜀(PowerShell 설치는 스킬이 안내)
 host=${1:-claude}
@@ -38,14 +38,14 @@ if ! mkdir "$LOCK" 2>/dev/null; then
 fi
 trap 'rm -rf "$LOCK" 2>/dev/null' EXIT
 
-# 단일 실행 파일 자리 — npm으로 깐 예전 판은 self-update를 못 하므로 이 자리를 봄
+# 단일 실행 파일 자리 — npm으로 깐 예전 판은 self-update를 못 하므로 이 자리를 봄. 새 이름 alphaworks, 없으면 옛 이름(옛 판 — self-update 한 번이면 새 이름도 생김, #609)
 BIN=''
-for candidate in "$DIR/bin/corp-platform" "$DIR/bin/corp-platform.exe"; do
+for candidate in "$DIR/bin/alphaworks" "$DIR/bin/alphaworks.exe" "$DIR/bin/corp-platform" "$DIR/bin/corp-platform.exe"; do
   [ -x "$candidate" ] && { BIN=$candidate; break; }
 done
 
 # 설치 — 받기와 실행을 나눔(#566). `curl … | bash`는 받기가 403 · 망 막힘이어도 빈 입력의 bash가 0을 돌려줘 성공처럼 보임
-# 성공은 설치 뒤 corp-platform --version이 버전을 낼 때만. 실패면 시간 표시를 남기지 않아 다음 세션 시작에 다시 시도
+# 성공은 설치 뒤 alphaworks --version이 버전을 낼 때만. 실패면 시간 표시를 남기지 않아 다음 세션 시작에 다시 시도
 install_cli() {
   local script="$CACHE/install.sh.$$" http code=0 out v
   http=$(curl -sSL --connect-timeout 15 --max-time 120 -o "$script" -w '%{http_code}' "$INSTALL_URL" 2>/dev/null) || code=$?
@@ -72,9 +72,9 @@ install_cli() {
     FAIL_WHY="설치 스크립트가 실패했어요 ($(printf '%s\n' "$out" | tail -n 1))"; FAIL_CODE=${FAIL_CODE:-unknown}
     return 1
   fi
-  v=$("$DIR/bin/corp-platform" --version 2>/dev/null || "$DIR/bin/corp-platform.exe" --version 2>/dev/null || true)
+  v=$("$DIR/bin/alphaworks" --version 2>/dev/null || "$DIR/bin/alphaworks.exe" --version 2>/dev/null || "$DIR/bin/corp-platform" --version 2>/dev/null || "$DIR/bin/corp-platform.exe" --version 2>/dev/null || true)
   if ! printf '%s' "$v" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+'; then
-    FAIL_WHY='설치는 끝났다고 했지만 corp-platform --version이 버전을 내지 않아요. 보안 프로그램이 실행을 막았을 수 있어요'; FAIL_CODE=run_failed
+    FAIL_WHY='설치는 끝났다고 했지만 alphaworks --version이 버전을 내지 않아요. 보안 프로그램이 실행을 막았을 수 있어요'; FAIL_CODE=run_failed
     return 1
   fi
   INSTALLED=$v
@@ -86,11 +86,11 @@ if [ -z "$BIN" ]; then
   if install_cli; then
     : >"$STAMP"
     log "installed $INSTALLED"
-    say "corp-platform CLI ${INSTALLED}를 설치했어요 ($DIR/bin). 이 세션의 셸에서 corp-platform을 못 찾으면 $DIR/bin/corp-platform 전체 경로로 부르세요. 처음이면 '시작해줘'(스킬 corp-platform)로 온보딩을 마치세요."
+    say "알파웍스 CLI ${INSTALLED}를 설치했어요 ($DIR/bin). 이 세션의 셸에서 alphaworks를 못 찾으면 $DIR/bin/alphaworks 전체 경로로 부르세요. 처음이면 '시작해줘'(스킬 alphaworks)로 온보딩을 마치세요."
   else
     log "install_failed code=$FAIL_CODE $FAIL_WHY"
     # 실패는 다음 세션에 다시 — 시간 표시를 남기지 않음
-    say "corp-platform CLI를 자동으로 설치하지 못했어요. $FAIL_WHY. 다음 세션 시작에 다시 시도해요. 사람에게 이 내용을 전하고, 회사망이 막은 것(network_blocked · tls_intercepted)이면 우회하지 마세요."
+    say "알파웍스 CLI를 자동으로 설치하지 못했어요. $FAIL_WHY. 다음 세션 시작에 다시 시도해요. 사람에게 이 내용을 전하고, 회사망이 막은 것(network_blocked · tls_intercepted)이면 우회하지 마세요."
   fi
   exit 0
 fi
@@ -103,7 +103,7 @@ if out=$(CORP_PLATFORM_NO_UPDATE_CHECK=1 "$BIN" self-update --json 2>&1); then
     *'"changed": true'*)
       after=$("$BIN" --version 2>/dev/null)
       log "updated $before -> $after"
-      say "corp-platform CLI를 ${before}에서 ${after}로 올렸어요."
+      say "알파웍스 CLI를 ${before}에서 ${after}로 올렸어요."
       ;;
     *) log "same $before" ;;
   esac

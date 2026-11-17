@@ -1,10 +1,10 @@
 # 알파웍스 플러그인 (Claude Code · Codex)
 
-알파웍스(회사 플랫폼 — 이름은 가제)에 앱을 만들고 옮기고 배포할 때 쓰는 플러그인이에요. 플러그인은 얇은 층이고, 일은 `corp-platform` CLI와 회사 플랫폼 MCP가 해요.
+알파웍스에 앱을 만들고 옮기고 배포할 때 쓰는 플러그인이에요. 플러그인은 얇은 층이고, 일은 `alphaworks` CLI와 알파웍스 MCP가 해요.
 
 | 플러그인 | 도구 | 하는 일 |
 | --- | --- | --- |
-| `alphaworks` | Claude Code (터미널 · Desktop Code 탭) | CLI가 없으면 설치, 하루 한 번 `corp-platform self-update`, 회사 플랫폼 MCP(`corp-platform`) 연결, "시작해줘" 온보딩 · 지침 스킬 |
+| `alphaworks` | Claude Code (터미널 · Desktop Code 탭) | CLI가 없으면 설치, 하루 한 번 `alphaworks self-update`, 알파웍스 MCP(서버 이름 `corp-platform`) 연결, "시작해줘" 온보딩과 지침 스킬 |
 | `alphaworks-codex` | Codex CLI · ChatGPT Desktop Codex 모드 | 같은 일 (윈도우는 세션 시작 훅을 건너뛰고 스킬이 PowerShell 설치를 안내) |
 
 비밀값은 없어요. CLI는 공개 자리에서 받고(sha256 · 서명 확인), MCP 로그인은 각 사람이 브라우저에서 회사 계정으로 해요.
@@ -30,10 +30,10 @@ codex plugin add alphaworks-codex@alphaworks
 | # | 에이전트가 하는 것 | 내가 할 일 |
 | --- | --- | --- |
 | 1 | GitHub 도구(`gh`)가 없으면 설치, 로그인 명령 띄우기 | 설치 동의, 브라우저에서 **승인**(회사 조직 계정) |
-| 2 | `corp-platform` CLI 설치, PC 점검 | 없음 |
-| 3 | 회사 플랫폼 MCP 연결 확인 | 브라우저에서 회사 로그인 · 2단계 인증 · **허용** |
+| 2 | `alphaworks` CLI 설치, PC 점검 | 없음 |
+| 3 | 알파웍스 MCP 연결 확인 | 브라우저에서 회사 로그인 · 2단계 인증 · **허용** |
 | 4 | 명령 허용 목록(사용자 설정)에 플랫폼 명령 · 읽기 도구 넣기 | 넣을 줄을 보고 동의 |
-| 5 | 사용법 문서 알려 주기 | 다음은 회사 포털의 `/docs`(포털 로그인 뒤) — 「말로 첫 앱 만들기」부터 |
+| 5 | 사용법 문서 알려 주기 | 다음은 알파웍스의 `/docs`(알파웍스 로그인 뒤)에서 「말로 첫 앱 만들기」부터 |
 
 ### 플러그인 없이 손으로
 
@@ -49,7 +49,7 @@ curl -fsSL https://github.com/AlphaBrothers-Corp/alphaworks-cli/releases/latest/
 irm https://github.com/AlphaBrothers-Corp/alphaworks-cli/releases/latest/download/install.ps1 | iex
 ```
 
-회사 플랫폼 MCP 연결(Claude Code — 그다음 `/mcp`에서 `corp-platform` 로그인):
+알파웍스 MCP 연결(Claude Code, 그다음 `/mcp`에서 `corp-platform` 로그인):
 
 ```
 claude mcp add --transport http --scope user corp-platform https://mcp.corp.ai-team.kr/mcp
@@ -57,12 +57,13 @@ claude mcp add --transport http --scope user corp-platform https://mcp.corp.ai-t
 
 Codex는 `codex mcp add corp-platform --url https://mcp.corp.ai-team.kr/mcp` → `codex mcp login corp-platform`.
 
-다음은 회사 포털의 사용법 문서 `https://portal.corp.ai-team.kr/docs`(직원 로그인 뒤)예요. 「준비하기」 · 「말로 첫 앱 만들기」 순서로 보면 돼요.
+다음은 알파웍스의 사용법 문서 `https://portal.corp.ai-team.kr/docs`(직원 로그인 뒤)예요. 「준비하기」 · 「말로 첫 앱 만들기」 순서로 보면 돼요.
 
 - 공개 마켓플레이스라 Claude Code의 자동 업데이트는 기본 꺼짐이에요 — `/plugin`에서 이 마켓플레이스의 자동 업데이트를 켜 주세요. 플러그인은 버전을 고정하지 않아서 저장소가 바뀌면 새 판이 가요
 - Codex는 처음 세션에서 플러그인 훅을 믿을지 물어요. 믿지 않으면 하루 한 번 업데이트만 꺼지고, 스킬은 그대로 돼요. 플러그인 업데이트는 Codex를 다시 열어야 반영돼요
 - 회사 관리형 설정(Claude Team Owner)이 있는 조직은 `extraKnownMarketplaces`(`AlphaBrothers-Corp/alphaworks-plugins`) · `enabledPlugins`(`alphaworks@alphaworks`) · `permissions.allow`로 한 번에 넣을 수 있어요
 - 예전에 `claude mcp add` · `codex mcp add`로 손으로 붙인 `corp-platform`이 있으면 둘 중 하나만 쓰면 돼요
+- CLI 명령은 `alphaworks`예요. 예전 이름 `corp-platform`도 같은 파일이라 그대로 돼요(설치 폴더 `~/.corp-platform/bin`에 둘 다 있어요). 예전에 깐 CLI는 `corp-platform self-update` 한 번이면 `alphaworks`도 생겨요
 - 하루 한 번 업데이트를 끄려면 `CORP_PLATFORM_NO_AUTO_UPDATE=1` 또는 `~/.corp-platform/no-auto-update` 파일. 기록은 `~/.corp-platform/cache/plugin-update.log`
 
 ## 원본 · 동기화 (운영자)
@@ -78,7 +79,7 @@ Codex는 `codex mcp add corp-platform --url https://mcp.corp.ai-team.kr/mcp` →
 | --- | --- |
 | `.claude-plugin/marketplace.json` | Claude Code 마켓플레이스 `alphaworks` — 플러그인 `alphaworks` |
 | `.agents/plugins/marketplace.json` | Codex 마켓플레이스 `alphaworks` — 플러그인 `alphaworks-codex` |
-| `plugins/alphaworks/` | Claude Code용 — `.claude-plugin/plugin.json` · `.mcp.json` · `hooks/` · `skills/corp-platform/SKILL.md` |
+| `plugins/alphaworks/` | Claude Code용 — `.claude-plugin/plugin.json` · `.mcp.json` · `hooks/` · `skills/alphaworks/SKILL.md` |
 | `plugins/alphaworks-codex/` | Codex용 — `.codex-plugin/plugin.json`(스킬 · MCP · 훅 자리를 적음) · 같은 모양 |
 
 같이 고칠 것 — 플랫폼 저장소의 시험 `scripts/test/plugins.test.ts`가 봄:
@@ -87,4 +88,4 @@ Codex는 `codex mcp add corp-platform --url https://mcp.corp.ai-team.kr/mcp` →
 - 세션 시작 훅 `hooks/session-start.sh`는 두 벌이 글자 그대로 같음
 - `plugin.json`에 `version`을 적지 않음(적으면 그 글자를 바꾸기 전까지 업데이트가 안 감)
 - 비밀값 · 토큰 · 내부 주소를 넣지 않음 — 공개 저장소
-- CLI 명령 · 패키지 범위 · 환경변수 · MCP 서버 이름은 `corp-platform` 그대로(알파웍스는 가제 — 플러그인 · 마켓플레이스 이름만)
+- 제품 이름은 알파웍스, CLI 명령은 `alphaworks`(옛 이름 `corp-platform`은 별칭 — 허용 목록에 두 줄 다, #609). 패키지 범위 · 환경변수 `CORP_PLATFORM_*` · MCP 서버 이름 `corp-platform` · 설치 폴더 `~/.corp-platform`은 그대로(바꾸면 이미 붙인 연결 · 허용 목록 · PATH가 끊김)
