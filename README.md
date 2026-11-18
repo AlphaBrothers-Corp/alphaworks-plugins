@@ -4,7 +4,7 @@
 
 | 플러그인 | 도구 | 하는 일 |
 | --- | --- | --- |
-| `alphaworks` | Claude Code (터미널 · Desktop Code 탭) | CLI가 없으면 설치, 하루 한 번 `alphaworks self-update`, 알파웍스 MCP(서버 이름 `corp-platform`) 연결, "시작해줘" 온보딩과 지침 스킬 |
+| `alphaworks` | Claude Code (터미널 · Desktop Code 탭) | CLI가 없으면 설치, 하루 한 번 `alphaworks self-update`, 알파웍스 MCP(서버 이름 `alphaworks`) 연결, "시작해줘" 온보딩과 지침 스킬 |
 | `alphaworks-codex` | Codex CLI · ChatGPT Desktop Codex 모드 | 같은 일 (윈도우는 세션 시작 훅을 건너뛰고 스킬이 PowerShell 설치를 안내) |
 
 비밀값은 없어요. CLI는 공개 자리에서 받고(sha256 · 서명 확인), MCP 로그인은 각 사람이 브라우저에서 회사 계정으로 해요.
@@ -25,7 +25,7 @@ codex plugin marketplace add https://github.com/AlphaBrothers-Corp/alphaworks-pl
 codex plugin add alphaworks-codex@alphaworks
 ```
 
-설치한 뒤 새 세션에서 **"시작해줘"** 라고 하면 차례로 해요. 내 손이 필요한 곳(브라우저 승인 · 동의)에서만 멈춰요.
+설치한 뒤 플러그인을 다시 불러와요. Claude Code(터미널)는 입력창에 `/reload-plugins`, Claude Desktop은 앱을 완전히 닫았다가 다시 열어요(데스크톱의 `/reload-plugins`는 플러그인의 MCP 연결을 붙이지 않아요). Codex는 다시 열어요. 그다음 **"시작해줘"** 라고 하면 차례로 해요. 내 손이 필요한 곳(브라우저 승인 · 동의)에서만 멈춰요.
 
 | # | 에이전트가 하는 것 | 내가 할 일 |
 | --- | --- | --- |
@@ -49,22 +49,22 @@ curl -fsSL https://github.com/AlphaBrothers-Corp/alphaworks-cli/releases/latest/
 irm https://github.com/AlphaBrothers-Corp/alphaworks-cli/releases/latest/download/install.ps1 | iex
 ```
 
-알파웍스 MCP 연결(Claude Code, 그다음 `/mcp`에서 `corp-platform` 로그인):
+알파웍스 MCP 연결(Claude Code, 그다음 `/mcp`에서 `alphaworks` 로그인):
 
 ```
-claude mcp add --transport http --scope user corp-platform https://mcp.corp.ai-team.kr/mcp
+claude mcp add --transport http --scope user alphaworks https://mcp.corp.ai-team.kr/mcp
 ```
 
-Codex는 `codex mcp add corp-platform --url https://mcp.corp.ai-team.kr/mcp` → `codex mcp login corp-platform`.
+Codex는 `codex mcp add alphaworks --url https://mcp.corp.ai-team.kr/mcp` → `codex mcp login alphaworks`.
 
 다음은 알파웍스의 사용법 문서 `https://portal.corp.ai-team.kr/docs`(직원 로그인 뒤)예요. 「준비하기」 · 「말로 첫 앱 만들기」 순서로 보면 돼요.
 
 - 공개 마켓플레이스라 Claude Code의 자동 업데이트는 기본 꺼짐이에요 — `/plugin`에서 이 마켓플레이스의 자동 업데이트를 켜 주세요. 플러그인은 버전을 고정하지 않아서 저장소가 바뀌면 새 판이 가요
 - Codex는 처음 세션에서 플러그인 훅을 믿을지 물어요. 믿지 않으면 하루 한 번 업데이트만 꺼지고, 스킬은 그대로 돼요. 플러그인 업데이트는 Codex를 다시 열어야 반영돼요
 - 회사 관리형 설정(Claude Team Owner)이 있는 조직은 `extraKnownMarketplaces`(`AlphaBrothers-Corp/alphaworks-plugins`) · `enabledPlugins`(`alphaworks@alphaworks`) · `permissions.allow`로 한 번에 넣을 수 있어요
-- 예전에 `claude mcp add` · `codex mcp add`로 손으로 붙인 `corp-platform`이 있으면 둘 중 하나만 쓰면 돼요
-- CLI 명령은 `alphaworks`예요. 예전 이름 `corp-platform`도 같은 파일이라 그대로 돼요(설치 폴더 `~/.corp-platform/bin`에 둘 다 있어요). 예전에 깐 CLI는 `corp-platform self-update` 한 번이면 `alphaworks`도 생겨요
-- 하루 한 번 업데이트를 끄려면 `CORP_PLATFORM_NO_AUTO_UPDATE=1` 또는 `~/.corp-platform/no-auto-update` 파일. 기록은 `~/.corp-platform/cache/plugin-update.log`
+- 예전에 `claude mcp add` · `codex mcp add`로 손으로 붙인 `corp-platform`(옛 이름)이 있으면 둘 중 하나만 쓰면 돼요
+- CLI 명령은 `alphaworks`예요. 예전 이름 `corp-platform`도 같은 파일이라 그대로 돼요(설치 폴더 `~/.alphaworks/bin`에 둘 다 있어요. 예전에 깐 PC는 원래 자리 `~/.corp-platform/bin`에서 새 판으로 바뀌어요). 예전에 깐 CLI는 `alphaworks self-update` 한 번이면 `alphaworks`도 생겨요
+- 하루 한 번 업데이트를 끄려면 `CORP_PLATFORM_NO_AUTO_UPDATE=1` 또는 `~/.alphaworks/no-auto-update` 파일(예전 자리 `~/.corp-platform/no-auto-update`도 돼요). 기록은 `~/.alphaworks/cache/plugin-update.log`
 
 ## 원본 · 동기화 (운영자)
 
@@ -88,4 +88,4 @@ Codex는 `codex mcp add corp-platform --url https://mcp.corp.ai-team.kr/mcp` →
 - 세션 시작 훅 `hooks/session-start.sh`는 두 벌이 글자 그대로 같음
 - `plugin.json`에 `version`을 적지 않음(적으면 그 글자를 바꾸기 전까지 업데이트가 안 감)
 - 비밀값 · 토큰 · 내부 주소를 넣지 않음 — 공개 저장소
-- 제품 이름은 알파웍스, CLI 명령은 `alphaworks`(옛 이름 `corp-platform`은 별칭 — 허용 목록에 두 줄 다, #609). 패키지 범위 · 환경변수 `CORP_PLATFORM_*` · MCP 서버 이름 `corp-platform` · 설치 폴더 `~/.corp-platform`은 그대로(바꾸면 이미 붙인 연결 · 허용 목록 · PATH가 끊김)
+- 제품 이름은 알파웍스, CLI 명령은 `alphaworks`(옛 이름 `corp-platform`은 별칭 — 허용 목록에 두 줄 다, #609). MCP 서버 이름도 `alphaworks`(#631 — 예전에 손으로 붙인 `corp-platform`은 그대로 돎). 설치 폴더는 `~/.alphaworks/bin`, 예전 자리 `~/.corp-platform/bin`도 훅이 봄(그 자리에 깐 PC는 설치 스크립트 · self-update가 제자리에서 바꿈). 패키지 범위 · 환경변수 `CORP_PLATFORM_*`은 그대로

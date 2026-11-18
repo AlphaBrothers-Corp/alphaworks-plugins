@@ -16,14 +16,14 @@ description: 알파웍스(AlphaWorks)에 앱을 새로 만들거나, 있는 앱�
    - 윈도우: `winget install --id GitHub.cli -e` (관리자 확인 창은 사람이 누름)
    - 리눅스: 배포판 패키지 관리자(`sudo`는 사람에게 묻고)
    그다음 `gh auth status -h github.com`. 로그인이 안 돼 있으면 사람에게 터미널에서 `gh auth login -h github.com`을 치게 하고, 브라우저에 코드를 넣고 **승인**하게 한다(회사 조직 AlphaBrothers-Corp 멤버 계정 — 초대를 아직 수락하지 않았으면 메일의 초대부터 수락). 승인은 대신 못 한다.
-2. **CLI** — `alphaworks --version`. 안 되면 `~/.corp-platform/bin/alphaworks --version`(설치 폴더 이름은 예전 그대로). 예전에 깐 CLI라 `corp-platform`만 되면 `corp-platform self-update --json`으로 올린다 — 올리면 `alphaworks`도 생긴다. 둘 다 안 되면 직접 설치한다(사람에게 부탁하지 않음 — 로그인 · Node · 토큰 없음):
+2. **CLI** — `alphaworks --version`. 안 되면 `~/.alphaworks/bin/alphaworks --version` · `~/.corp-platform/bin/alphaworks --version`(예전 설치 자리). 예전에 깐 CLI라 `corp-platform`만 되면 `alphaworks self-update --json`으로 올린다 — 올리면 `alphaworks`도 생긴다. 둘 다 안 되면 직접 설치한다(사람에게 부탁하지 않음 — 로그인 · Node · 토큰 없음):
    - 맥 · 리눅스 · Git Bash: `curl -fsSL https://github.com/AlphaBrothers-Corp/alphaworks-cli/releases/latest/download/install.sh | bash`
    - 윈도우 PowerShell: `irm https://github.com/AlphaBrothers-Corp/alphaworks-cli/releases/latest/download/install.ps1 | iex`
    설치가 `CORP_PLATFORM_INSTALL_ERROR code=…`로 끝나면 그 줄을 사람에게 전한다. `network_blocked` · `tls_intercepted`는 회사망 · 보안 프로그램이 막은 것이라 우회하지 않고 멈춘다. 보안 프로그램이 실행을 막으면(서명 없는 파일 차단 등) 우회하지 않고 IT에 허용을 요청하라고 전한다. 설치 뒤 이 세션에서 `alphaworks`를 못 찾으면 전체 경로로 부른다.
    그다음 `alphaworks setup --json`으로 PC를 점검하고 `say`를 전한다. 내 PC에서 앱을 띄워 볼 때만 Node 22 · Docker가 필요하다 — 없으면 알리기만 한다.
-3. **알파웍스 연결(MCP)** — 이 플러그인이 알파웍스 MCP(`https://mcp.corp.ai-team.kr/mcp`, 서버 이름은 예전 그대로 `corp-platform`)를 붙인다.
-   연결 확인부터 한다: MCP 도구 `list_my_apps`를 부른다. 답이 오면(빈 목록이어도) 이미 연결된 것이니 로그인을 부탁하지 않고 4번으로 간다. 도구 자체가 없으면 플러그인을 깐 뒤 앱을 다시 열지 않은 것이다 — 앱을 완전히 닫았다가(창만 닫지 않고 종료) 다시 열고 "시작해줘"를 다시 하게 한다. 인증 오류면 아래처럼 사람이 직접 로그인하게 한다.
-   로그인: 사람에게 터미널에서 `codex mcp login corp-platform`을 치고 브라우저에서 회사 로그인 · 2단계 인증 → 허용 화면의 도구 이름이 "Codex"인지 보고 **허용**하게 한다. 플러그인을 쓸 수 없는 환경이면 동의를 받고 `codex mcp add corp-platform --url https://mcp.corp.ai-team.kr/mcp`로 붙인다(`--oauth-resource`는 붙이지 않음). Codex는 만료된 연결을 저절로 잇지 않아 "다시 로그인"이 나오면 같은 login 명령을 다시 친다. 예전에 `codex mcp add`로 손으로 붙인 `corp-platform`이 있으면 둘 중 하나만 쓰면 된다고 알린다.
+3. **알파웍스 연결(MCP)** — 이 플러그인이 알파웍스 MCP(`https://mcp.corp.ai-team.kr/mcp`, 서버 이름 `alphaworks` — 예전 이름 `corp-platform`)를 붙인다.
+   연결 확인부터 한다: MCP 도구 `list_my_apps`를 부른다. 답이 오면(빈 목록이어도) 이미 연결된 것이니 로그인을 부탁하지 않고 4번으로 간다. 도구 자체가 없으면 플러그인을 깐 뒤 다시 불러오지 않은 것이다 — Claude Code(터미널)면 사람이 입력창에 `/reload-plugins`를 직접 치게 하고(안 되면 Claude Code를 닫았다 다시 열고), Claude Desktop이면 `/reload-plugins`가 플러그인의 MCP 연결을 붙이지 않으니, Codex면 다시 불러오는 명령이 없으니 앱을 완전히 닫았다가(창만 닫지 않고 종료) 다시 열게 한다. 그다음 "시작해줘"를 다시 하게 한다. 인증 오류면 아래처럼 사람이 직접 로그인하게 한다.
+   로그인: 사람에게 터미널에서 `codex mcp login alphaworks`를 치고 브라우저에서 회사 로그인 · 2단계 인증 → 허용 화면의 도구 이름이 "Codex"인지 보고 **허용**하게 한다. 플러그인을 쓸 수 없는 환경이면 동의를 받고 `codex mcp add alphaworks --url https://mcp.corp.ai-team.kr/mcp`로 붙인다(`--oauth-resource`는 붙이지 않음). Codex는 만료된 연결을 저절로 잇지 않아 "다시 로그인"이 나오면 같은 login 명령을 다시 친다. 예전에 `codex mcp add`로 손으로 붙인 `corp-platform`(옛 이름)이 있으면 둘 중 하나만 쓰면 된다고 알린다.
    로그인은 사람이 혼자 끝낸다. 너는 로그인 주소를 만들어 건네지 않고, 로그인 끝 화면의 주소(`localhost`나 `127.0.0.1`의 `/callback?code=…`)를 채팅으로 받아 넣지 않는다 — 그 주소에는 인증 코드가 들어 있다. 끝 화면에 "사이트에 연결할 수 없음"이 떠도 대개 연결은 끝난 것이니 창을 닫고 돌아오게 한 뒤 `list_my_apps`를 다시 부른다. 그래도 안 되면 같은 로그인을 처음부터 다시 하게 한다. 비밀번호 · 인증 코드는 묻지 않는다. 연결이 안 되면 이 단계를 건너뛰지 않는다(이게 없으면 배포 결과 · 로그를 못 읽는다).
 4. **허용 목록** — 매번 승인을 묻지 않게, 사람에게 무엇을 넣는지 보여 주고 동의를 받은 뒤 `~/.codex/rules/default.rules`에 아래 두 줄을 더한다(파일이 없으면 만들고, 다른 줄은 건드리지 않음):
    `prefix_rule(pattern=["alphaworks"], decision="allow")`

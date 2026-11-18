@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "corp-platform": {
+    "alphaworks": {
       "type": "http",
       "url": "https://mcp.corp.ai-team.kr/mcp"
     }

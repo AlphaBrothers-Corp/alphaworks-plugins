@@ -1,17 +1,25 @@
 #!/usr/bin/env bash
 # 세션 시작 훅 — 알파웍스 CLI(alphaworks)가 없으면 깔고, 하루 한 번 새 판으로 올림 (planning/55-CLI-단일바이너리 "업데이트" · 52-사용성개선 "2. CLI는 공개 CDN, 플러그인은 CLI 래퍼")
 # hooks.json이 async로 등록 — 세션을 막지 않고 뒤에서 돎. 바뀐 것이 있을 때만 마지막 줄 JSON(additionalContext)으로 에이전트에게 한 줄 알림
-# CLI가 혼자 바꾸지 않음 — 이 훅이 `alphaworks self-update`를 부르는 것뿐. 끄기: CORP_PLATFORM_NO_AUTO_UPDATE=1 또는 ~/.corp-platform/no-auto-update 파일
+# CLI가 혼자 바꾸지 않음 — 이 훅이 `alphaworks self-update`를 부르는 것뿐. 끄기: CORP_PLATFORM_NO_AUTO_UPDATE=1 또는 ~/.alphaworks/no-auto-update 파일(옛 자리 ~/.corp-platform/no-auto-update도)
 # 사본: Claude Code용(plugins/alphaworks)과 Codex용(plugins/alphaworks-codex)이 글자 그대로 같음 — scripts/test/plugins.test.ts가 견줌
 # NOTE: 비밀값 · 토큰 없음. 받는 곳은 공개 저장소의 GitHub Releases 하나(설치 스크립트 · self-update가 sha256 · 서명 확인). 윈도우 Codex는 hooks.json이 건너뜀(PowerShell 설치는 스킬이 안내)
 host=${1:-claude}
 [ -n "${CORP_PLATFORM_NO_AUTO_UPDATE:-}" ] && exit 0
+[ -f "$HOME/.alphaworks/no-auto-update" ] && exit 0
 [ -f "$HOME/.corp-platform/no-auto-update" ] && exit 0
 
 INSTALL_URL='https://github.com/AlphaBrothers-Corp/alphaworks-cli/releases/latest/download/install.sh'
 # 주소를 바꿔 볼 때(시험) — 설치 스크립트 · self-update와 같은 변수(`…/releases` 모양)
 [ -n "${CORP_PLATFORM_CLI_BASE_URL:-}" ] && INSTALL_URL="${CORP_PLATFORM_CLI_BASE_URL%/}/latest/download/install.sh"
-DIR="$HOME/.corp-platform"
+# 자리(#631): 새 자리 ~/.alphaworks. 옛 자리 ~/.corp-platform/bin에 깐 PC는 설치 스크립트 · self-update가 그 자리를 그대로 씀 — 실행 파일은 두 자리를 다 봄
+# 캐시 · 잠금 · 시간 표시도 설치 자리를 따라감(설치 스크립트와 같은 판정) — 옛 자리 PC에서 옛 훅과 새 훅이 같은 잠금 · 표시를 봐 하루 두 번 올리지 않게
+LEGACY_DIR="$HOME/.corp-platform"
+LEGACY_BIN="$LEGACY_DIR/bin"
+DIR="$HOME/.alphaworks"
+for f in alphaworks alphaworks.exe corp-platform.exe corp-platform; do
+  [ -e "$LEGACY_BIN/$f" ] && { DIR=$LEGACY_DIR; break; }
+done
 CACHE="$DIR/cache"
 mkdir -p "$CACHE" 2>/dev/null || exit 0
 LOG="$CACHE/plugin-update.log"
@@ -39,10 +47,16 @@ fi
 trap 'rm -rf "$LOCK" 2>/dev/null' EXIT
 
 # 단일 실행 파일 자리 — npm으로 깐 예전 판은 self-update를 못 하므로 이 자리를 봄. 새 이름 alphaworks, 없으면 옛 이름(옛 판 — self-update 한 번이면 새 이름도 생김, #609)
-BIN=''
-for candidate in "$DIR/bin/alphaworks" "$DIR/bin/alphaworks.exe" "$DIR/bin/corp-platform" "$DIR/bin/corp-platform.exe"; do
-  [ -x "$candidate" ] && { BIN=$candidate; break; }
-done
+find_bin() {
+  local d candidate
+  for d in "$DIR/bin" "$LEGACY_BIN"; do
+    for candidate in "$d/alphaworks" "$d/alphaworks.exe" "$d/corp-platform" "$d/corp-platform.exe"; do
+      [ -x "$candidate" ] && { printf '%s' "$candidate"; return 0; }
+    done
+  done
+  return 1
+}
+BIN=$(find_bin || true)
 
 # 설치 — 받기와 실행을 나눔(#566). `curl … | bash`는 받기가 403 · 망 막힘이어도 빈 입력의 bash가 0을 돌려줘 성공처럼 보임
 # 성공은 설치 뒤 alphaworks --version이 버전을 낼 때만. 실패면 시간 표시를 남기지 않아 다음 세션 시작에 다시 시도
@@ -72,7 +86,8 @@ install_cli() {
     FAIL_WHY="설치 스크립트가 실패했어요 ($(printf '%s\n' "$out" | tail -n 1))"; FAIL_CODE=${FAIL_CODE:-unknown}
     return 1
   fi
-  v=$("$DIR/bin/alphaworks" --version 2>/dev/null || "$DIR/bin/alphaworks.exe" --version 2>/dev/null || "$DIR/bin/corp-platform" --version 2>/dev/null || "$DIR/bin/corp-platform.exe" --version 2>/dev/null || true)
+  NEW_BIN=$(find_bin || true)
+  v=$([ -n "$NEW_BIN" ] && "$NEW_BIN" --version 2>/dev/null || true)
   if ! printf '%s' "$v" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+'; then
     FAIL_WHY='설치는 끝났다고 했지만 alphaworks --version이 버전을 내지 않아요. 보안 프로그램이 실행을 막았을 수 있어요'; FAIL_CODE=run_failed
     return 1
@@ -86,7 +101,7 @@ if [ -z "$BIN" ]; then
   if install_cli; then
     : >"$STAMP"
     log "installed $INSTALLED"
-    say "알파웍스 CLI ${INSTALLED}를 설치했어요 ($DIR/bin). 이 세션의 셸에서 alphaworks를 못 찾으면 $DIR/bin/alphaworks 전체 경로로 부르세요. 처음이면 '시작해줘'(스킬 alphaworks)로 온보딩을 마치세요."
+    say "알파웍스 CLI ${INSTALLED}를 설치했어요 (${NEW_BIN%/*}). 이 세션의 셸에서 alphaworks를 못 찾으면 ${NEW_BIN%/*}/alphaworks 전체 경로로 부르세요. 처음이면 '시작해줘'(스킬 alphaworks)로 온보딩을 마치세요."
   else
     log "install_failed code=$FAIL_CODE $FAIL_WHY"
     # 실패는 다음 세션에 다시 — 시간 표시를 남기지 않음
