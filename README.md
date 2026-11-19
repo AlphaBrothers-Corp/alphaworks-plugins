@@ -4,7 +4,7 @@
 
 | 플러그인 | 도구 | 하는 일 |
 | --- | --- | --- |
-| `alphaworks` | Claude Code (터미널 · Desktop Code 탭) | CLI가 없으면 설치, 하루 한 번 `alphaworks self-update`, 알파웍스 MCP(서버 이름 `alphaworks`) 연결, "시작해줘" 온보딩과 지침 스킬 |
+| `alphaworks` | Claude Code (터미널 · Desktop Code 탭) | CLI가 없으면 npm으로 설치(Node가 있을 때), 하루 한 번 `alphaworks self-update`, 알파웍스 MCP(서버 이름 `alphaworks`) 연결, "시작해줘" 온보딩과 지침 스킬 |
 | `alphaworks-codex` | Codex CLI · ChatGPT Desktop Codex 모드 | 같은 일 (윈도우는 세션 시작 훅을 건너뛰고 스킬이 PowerShell 설치를 안내) |
 
 비밀값은 없어요. CLI는 공개 자리에서 받고(sha256 · 서명 확인), MCP 로그인은 각 사람이 브라우저에서 회사 계정으로 해요.
@@ -37,16 +37,10 @@ codex plugin add alphaworks-codex@alphaworks
 
 ### 플러그인 없이 손으로
 
-플러그인을 못 쓰는 환경이면 같은 일을 두 줄로 해요. CLI 설치(맥 · 리눅스 · Git Bash):
+플러그인을 못 쓰는 환경이면 같은 일을 두 줄로 해요. CLI 설치(Node 22 이상이 먼저 — 윈도우는 `winget install OpenJS.NodeJS.LTS`, 맥 · 리눅스는 https://nodejs.org 의 LTS. 맥 · 리눅스 · 윈도우 같은 줄):
 
 ```
-curl -fsSL https://github.com/AlphaBrothers-Corp/alphaworks-cli/releases/latest/download/install.sh | bash
-```
-
-윈도우 PowerShell:
-
-```
-irm https://github.com/AlphaBrothers-Corp/alphaworks-cli/releases/latest/download/install.ps1 | iex
+npm install -g @alphabro/alphaworks-cli
 ```
 
 알파웍스 MCP 연결(Claude Code, 그다음 `/mcp`에서 `alphaworks` 로그인):
@@ -63,7 +57,7 @@ Codex는 `codex mcp add alphaworks --url https://mcp.corp.ai-team.kr/mcp` → `c
 - Codex는 처음 세션에서 플러그인 훅을 믿을지 물어요. 믿지 않으면 하루 한 번 업데이트만 꺼지고, 스킬은 그대로 돼요. 플러그인 업데이트는 Codex를 다시 열어야 반영돼요
 - 회사 관리형 설정(Claude Team Owner)이 있는 조직은 `extraKnownMarketplaces`(`AlphaBrothers-Corp/alphaworks-plugins`) · `enabledPlugins`(`alphaworks@alphaworks`) · `permissions.allow`로 한 번에 넣을 수 있어요
 - 예전에 `claude mcp add` · `codex mcp add`로 손으로 붙인 `corp-platform`(옛 이름)이 있으면 둘 중 하나만 쓰면 돼요
-- CLI 명령은 `alphaworks`예요. 예전 이름 `corp-platform`도 같은 파일이라 그대로 돼요(설치 폴더 `~/.alphaworks/bin`에 둘 다 있어요. 예전에 깐 PC는 원래 자리 `~/.corp-platform/bin`에서 새 판으로 바뀌어요). 예전에 깐 CLI는 `alphaworks self-update` 한 번이면 `alphaworks`도 생겨요
+- CLI 명령은 `alphaworks`예요. 예전 이름 `corp-platform`도 같은 명령이라 그대로 돼요. CLI는 공개 npm `@alphabro/alphaworks-cli`로 받아요(2026-11-19 — 윈도우 스마트 앱 컨트롤이 서명 없는 실행 파일을 막아서). 예전에 실행 파일로 깐 PC(`~/.alphaworks/bin` · `~/.corp-platform/bin`)는 훅이 npm 판을 깐 뒤 옛 폴더를 지우라고 알려요 — 지우는 것은 사람이 정해요
 - 하루 한 번 업데이트를 끄려면 `CORP_PLATFORM_NO_AUTO_UPDATE=1` 또는 `~/.alphaworks/no-auto-update` 파일(예전 자리 `~/.corp-platform/no-auto-update`도 돼요). 기록은 `~/.alphaworks/cache/plugin-update.log`
 
 ## 원본 · 동기화 (운영자)
@@ -84,8 +78,8 @@ Codex는 `codex mcp add alphaworks --url https://mcp.corp.ai-team.kr/mcp` → `c
 
 같이 고칠 것 — 플랫폼 저장소의 시험 `scripts/test/plugins.test.ts`가 봄:
 
-- 설치 한 줄 · MCP 주소는 `packages/agent-kit/src/install.ts` `INSTALL_COMMAND` · `INSTALL_COMMAND_POWERSHELL`, 회사 도메인(`mcp.{도메인}/mcp`)과 같은 글자
+- 설치 한 줄 · MCP 주소는 `packages/agent-kit/src/install.ts` `INSTALL_COMMAND`(훅의 `PACKAGE`는 `CLI_NPM_PACKAGE`), 회사 도메인(`mcp.{도메인}/mcp`)과 같은 글자
 - 세션 시작 훅 `hooks/session-start.sh`는 두 벌이 글자 그대로 같음
 - `plugin.json`에 `version`을 적지 않음(적으면 그 글자를 바꾸기 전까지 업데이트가 안 감)
 - 비밀값 · 토큰 · 내부 주소를 넣지 않음 — 공개 저장소
-- 제품 이름은 알파웍스, CLI 명령은 `alphaworks`(옛 이름 `corp-platform`은 별칭 — 허용 목록에 두 줄 다, #609). MCP 서버 이름도 `alphaworks`(#631 — 예전에 손으로 붙인 `corp-platform`은 그대로 돎). 설치 폴더는 `~/.alphaworks/bin`, 예전 자리 `~/.corp-platform/bin`도 훅이 봄(그 자리에 깐 PC는 설치 스크립트 · self-update가 제자리에서 바꿈). 패키지 범위 · 환경변수 `CORP_PLATFORM_*`은 그대로
+- 제품 이름은 알파웍스, CLI 명령은 `alphaworks`(옛 이름 `corp-platform`은 별칭 — 허용 목록에 두 줄 다, #609). MCP 서버 이름도 `alphaworks`(#631 — 예전에 손으로 붙인 `corp-platform`은 그대로 돎). CLI는 공개 npm(npm 전역 폴더), 옛 실행 파일 자리 `~/.alphaworks/bin` · `~/.corp-platform/bin`은 훅이 알아보고 지우라고 알림만(#690). 패키지 범위 · 환경변수 `CORP_PLATFORM_*`은 그대로

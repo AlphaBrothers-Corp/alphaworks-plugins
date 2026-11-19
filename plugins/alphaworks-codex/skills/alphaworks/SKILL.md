@@ -11,16 +11,17 @@ description: 알파웍스(AlphaWorks)에 앱을 새로 만들거나, 있는 앱�
 
 순서대로 하고, 끝난 단계는 건너뛴다. 단계마다 무엇을 하는지 한 줄로 먼저 말한다. 사람 손이 필요한 곳(브라우저 승인 · 비밀번호 창 · 동의)에서는 멈추고 기다린다.
 
-1. **GitHub 도구** — `gh --version`. 없으면 설치해도 되는지 묻고, 동의하면 설치한다:
-   - 맥: `brew`가 있으면 `brew install gh`. 없으면 사람에게 https://cli.github.com 에서 macOS 설치 파일을 받아 열게 한다
-   - 윈도우: `winget install --id GitHub.cli -e` (관리자 확인 창은 사람이 누름)
-   - 리눅스: 배포판 패키지 관리자(`sudo`는 사람에게 묻고)
+1. **GitHub 도구와 Node** — `gh --version` · `node --version`(22 이상). 없으면 설치해도 되는지 묻고, 동의하면 설치한다:
+   - 맥: `brew`가 있으면 `brew install gh`(Node는 `brew install node`). 없으면 사람에게 https://cli.github.com 에서 macOS 설치 파일을 받아 열게 한다
+   - 윈도우: `winget install --id GitHub.cli -e` · Node는 `winget install OpenJS.NodeJS.LTS` (관리자 확인 창은 사람이 누름. 깐 뒤 새 창에서 `node --version`)
+   - 리눅스: 배포판 패키지 관리자(`sudo`는 사람에게 묻고). Node는 https://nodejs.org 의 LTS(배포판 기본 패키지는 낮을 수 있음 — 22 이상인지 확인)
+   맥에 `brew`가 없으면 Node도 사람에게 https://nodejs.org 에서 LTS 설치 파일을 받아 열게 한다.
    그다음 `gh auth status -h github.com`. 로그인이 안 돼 있으면 사람에게 터미널에서 `gh auth login -h github.com`을 치게 하고, 브라우저에 코드를 넣고 **승인**하게 한다(회사 조직 AlphaBrothers-Corp 멤버 계정 — 초대를 아직 수락하지 않았으면 메일의 초대부터 수락). 승인은 대신 못 한다.
-2. **CLI** — `alphaworks --version`. 안 되면 `~/.alphaworks/bin/alphaworks --version` · `~/.corp-platform/bin/alphaworks --version`(예전 설치 자리). 예전에 깐 CLI라 `corp-platform`만 되면 `alphaworks self-update --json`으로 올린다 — 올리면 `alphaworks`도 생긴다. 둘 다 안 되면 직접 설치한다(사람에게 부탁하지 않음 — 로그인 · Node · 토큰 없음):
-   - 맥 · 리눅스 · Git Bash: `curl -fsSL https://github.com/AlphaBrothers-Corp/alphaworks-cli/releases/latest/download/install.sh | bash`
-   - 윈도우 PowerShell: `irm https://github.com/AlphaBrothers-Corp/alphaworks-cli/releases/latest/download/install.ps1 | iex`
-   설치가 `CORP_PLATFORM_INSTALL_ERROR code=…`로 끝나면 그 줄을 사람에게 전한다. `network_blocked` · `tls_intercepted`는 회사망 · 보안 프로그램이 막은 것이라 우회하지 않고 멈춘다. 보안 프로그램이 실행을 막으면(서명 없는 파일 차단 등) 우회하지 않고 IT에 허용을 요청하라고 전한다. 설치 뒤 이 세션에서 `alphaworks`를 못 찾으면 전체 경로로 부른다.
-   그다음 `alphaworks setup --json`으로 PC를 점검하고 `say`를 전한다. 내 PC에서 앱을 띄워 볼 때만 Node 22 · Docker가 필요하다 — 없으면 알리기만 한다.
+2. **CLI** — `alphaworks --version`. 안 되면 직접 설치한다(사람에게 부탁하지 않음 — 공개 npm이라 로그인 · 토큰 없음, 맥 · 리눅스 · 윈도우 같은 줄):
+   `npm install -g @alphabro/alphaworks-cli`
+   `npm`이 없으면 1번의 Node부터. 설치가 `EACCES`(권한)로 끝나면 sudo를 쓰지 말고 사람에게 묻고 `npm config set prefix ~/.npm-global` 뒤 `~/.npm-global/bin`을 PATH에 넣고 다시 한다. `ETIMEDOUT` · `ECONNRESET` · `SELF_SIGNED_CERT_IN_CHAIN`이면 회사망 · 보안 프로그램이 `registry.npmjs.org`를 막은 것이라 우회하지 않고 그 줄을 사람에게 전하고 멈춘다. 설치 뒤 이 세션에서 `alphaworks`를 못 찾으면 `npm prefix -g`가 알려 준 폴더의 `bin/alphaworks`(윈도우는 그 폴더의 `alphaworks.cmd`)로 부른다.
+   예전에 실행 파일로 깐 PC(`~/.alphaworks/bin` · `~/.corp-platform/bin`에 `alphaworks` · `corp-platform`이 있음)는 위 한 줄로 깐 뒤 옛 폴더를 지워도 되는지 묻고, 동의하면 지운다(셸 시작 파일의 그 PATH 줄도) — `alphaworks setup`의 `old_binary`가 지울 줄을 알려 준다.
+   그다음 `alphaworks setup --json`으로 PC를 점검하고 `say`를 전한다. 내 PC에서 앱을 띄워 볼 때는 Docker Desktop도 필요하다 — 없으면 설치를 권한다(윈도우 `winget install Docker.DockerDesktop`, 맥은 https://www.docker.com/products/docker-desktop/ — 사람이 설치 · 첫 실행).
 3. **알파웍스 연결(MCP)** — 이 플러그인이 알파웍스 MCP(`https://mcp.corp.ai-team.kr/mcp`, 서버 이름 `alphaworks` — 예전 이름 `corp-platform`)를 붙인다.
    연결 확인부터 한다: MCP 도구 `list_my_apps`를 부른다. 답이 오면(빈 목록이어도) 이미 연결된 것이니 로그인을 부탁하지 않고 4번으로 간다. 도구 자체가 없으면 플러그인을 깐 뒤 다시 불러오지 않은 것이다 — Claude Code(터미널)면 사람이 입력창에 `/reload-plugins`를 직접 치게 하고(안 되면 Claude Code를 닫았다 다시 열고), Claude Desktop이면 `/reload-plugins`가 플러그인의 MCP 연결을 붙이지 않으니, Codex면 다시 불러오는 명령이 없으니 앱을 완전히 닫았다가(창만 닫지 않고 종료) 다시 열게 한다. 그다음 "시작해줘"를 다시 하게 한다. 인증 오류면 아래처럼 사람이 직접 로그인하게 한다.
    로그인: 사람에게 터미널에서 `codex mcp login alphaworks`를 치고 브라우저에서 회사 로그인 · 2단계 인증 → 허용 화면의 도구 이름이 "Codex"인지 보고 **허용**하게 한다. 플러그인을 쓸 수 없는 환경이면 동의를 받고 `codex mcp add alphaworks --url https://mcp.corp.ai-team.kr/mcp`로 붙인다(`--oauth-resource`는 붙이지 않음). Codex는 만료된 연결을 저절로 잇지 않아 "다시 로그인"이 나오면 같은 login 명령을 다시 친다. 예전에 `codex mcp add`로 손으로 붙인 `corp-platform`(옛 이름)이 있으면 둘 중 하나만 쓰면 된다고 알린다.
@@ -35,6 +36,6 @@ description: 알파웍스(AlphaWorks)에 앱을 새로 만들거나, 있는 앱�
 
 - 지침을 먼저 읽는다 — 이 저장소가 등록된 앱이면 MCP `app_guide`, 아니면 `alphaworks agents-md`. 그 지침의 "배포 흐름"을 따른다. 이 스킬과 다르면 지침이 우선한다.
 - CLI 명령은 늘 `--json`으로 부른다(응답 계약 — `say` · `ask` · `next`).
-- `alphaworks setup` · `diagnose`가 새 CLI를 알리면(`next`의 `update_cli`) 그 `command`(보통 `alphaworks self-update --json`)를 먼저 실행하고 같은 명령을 다시 한다. 이 플러그인도 하루 한 번 세션을 열 때 뒤에서 올린다(맥 · 리눅스 — 윈도우는 그때그때 `self-update`).
+- `alphaworks setup` · `diagnose`가 새 CLI를 알리면(`next`의 `update_cli`) 그 `command`(보통 `alphaworks self-update --json`)를 먼저 실행하고 같은 명령을 다시 한다. 이 플러그인도 하루 한 번 세션을 열 때 뒤에서 올린다(맥 · 리눅스 — 윈도우는 그때그때 `self-update`). `self-update`는 npm으로 다시 받는다.
 - 앱 등록은 사람이 한다 — `alphaworks request --json`이 준 `registerUrl`(알파웍스 "앱 등록" 화면)을 전하고, 사람이 열어 **등록 요청**을 누르게 한다. 서버가 진단해 문제가 없으면 바로 등록하고 첫 배포까지 한다. 그다음 MCP `deploy_result`로 결과를 본다.
 - 사람만 할 수 있는 것(브라우저 승인 · 비밀값 넣기 · 알파웍스 등록 요청)은 대신하지 않는다. 비밀값 값은 받지 않는다 — 알파웍스 앱 관리 > 설정 > 비밀값에 사람이 넣는다.
